@@ -1,10 +1,10 @@
 name: feature-01 CI
-run-name: ${{ github.actor }} is 
+run-name: ${{ github.actor }} is feature
 on:
   push: 
     branchs: 
       - feature-01
-job: 
+jobs: 
   ci-feature-01: 
     runs-on: ubuntu-latest
     steps: 
