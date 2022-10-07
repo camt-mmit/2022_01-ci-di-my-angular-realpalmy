@@ -1,0 +1,30 @@
+name: feature-01 CI
+run-name: ${{ github.actor }} is 
+on:
+  push: 
+    branchs: 
+      - feature-01
+job: 
+  ci-feature-01: 
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ github.token }} 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16" 
+      - name: setup-git
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}" 
+      - name: Install yarn
+        run: npm install -g yarn 
+      - name: Install deprndencies
+        run: yarn install --frozrn-lockfile
+      - name: Build project
+        run: npx ng build --configuration production --base-href="/${{ github.event.repository.name }}/"
+      - name: Lint project
+        run: yarn run lint
+      - name: Test Project
+        run: yarn run test:ci
