@@ -24,7 +24,7 @@ jobs:
         run: yarn install --frozrn-lockfile
       - name: Build project
         run: npx ng build --configuration production --base-href="/${{ github.event.repository.name }}/"
-      - name: Lint project
-        run: yarn run lint
+      # - name: Lint project
+      #  run: yarn run lint
       - name: Test Project
         run: yarn run test:ci

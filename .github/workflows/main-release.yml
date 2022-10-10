@@ -2,8 +2,8 @@ name: feature release
 run-name: ${{ github.actor }} is releasing main
 on:
   push: 
-    branches: 
-      - b*.*.*
+    tags: 
+      - v*.*.*
 jobs: 
   ci-feature: 
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
           node-version: "16" 
       - name: Setupe enviroment variables
         run: |
-          VERSION="${REF_NAME#refs/heads/b}"
+          VERSION="${REF_NAME#refs/heads/v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "BRANCH_NAME=b${VERSION}" >> $GITHUB_ENV
           echo "TAG_NAME=v${VERSION}" >> $GITHUB_ENV

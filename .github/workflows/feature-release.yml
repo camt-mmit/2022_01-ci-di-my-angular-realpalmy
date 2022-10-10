@@ -2,8 +2,8 @@ name: feature release
 run-name: ${{ github.actor }} is releasing feature
 on:
   push: 
-    tags: 
-      - v*.*.*
+    branches: 
+      - b*.*.*
 jobs: 
   ci-feature: 
     runs-on: ubuntu-latest
@@ -16,6 +16,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16" 
+      - name: Setupe enviroment variables
+        run: |
+          VERSION="${REF_NAME#refs/heads/b}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=b${VERSION}" >> $GITHUB_ENV
+          echo "TAG_NAME=v${VERSION}" >> $GITHUB_ENV
       - name: setup-git
         run: |
           git config --global user.email "${{ github.event.pusher.email }}"
