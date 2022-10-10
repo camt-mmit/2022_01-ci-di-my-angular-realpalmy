@@ -1,0 +1,40 @@
+name: feature release
+run-name: ${{ github.actor }} is releasing feature
+on:
+  push: 
+    tags: 
+      - v*.*.*
+jobs: 
+  ci-feature: 
+    runs-on: ubuntu-latest
+    env: 
+      BRANCH_NAME: ${{ github.ref }}
+    steps: 
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PUSH_MAIN }}  
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16" 
+      - name: setup-git
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}" 
+      - name: Install yarn
+        run: npm install -g yarn 
+      - name: Install deprndencies
+        run: yarn install --frozrn-lockfile
+      - name: Build project
+        run: npx ng build --configuration production --base-href="/${{ github.event.repository.name }}/"
+      - name: Lint project
+        run: yarn run lint
+      - name: Test Project
+        run: yarn run test:ci
+      - name: Merge to main
+        run: |
+          git fetch --unshallow
+          git checkout main
+          git merge ${{ env.BRANCH_NAME }}
+          git push origin main
+          git tag -a ${{ env.BRANCH_NAME }} -m "my version ${{ env.BRANCH_NAME }}"
+          git push origin main --tags

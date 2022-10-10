@@ -1,0 +1,60 @@
+name: feature release
+run-name: ${{ github.actor }} is releasing main
+on:
+  push: 
+    branches: 
+      - b*.*.*
+jobs: 
+  ci-feature: 
+    runs-on: ubuntu-latest
+    env: 
+      TAG_NAME: ${{ github.ref }}
+    steps: 
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}  
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16" 
+      Manutsanan Khanthong
+- name: Setupe enviroment variables
+        run: |
+          VERSION="${REF_NAME#refs/heads/b}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=b${VERSION}" >> $GITHUB_ENV
+          echo "TAG_NAME=v${VERSION}" >> $GITHUB_ENV
+      - name: Setup git user
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}"
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build project
+        run: npx ng build --configuration=production --base-href="/${{ github.event.repository.name }}/"
+      - name: Lint project
+        run: yarn run lint
+      - name: Test project
+        run: yarn run test:ci
+      - name: Merge to master
+        run: |
+          git feech --unshallow
+          git checkout master
+          git merge ${{ env.BRANCH_NAME }}
+          git push origin master
+          git tag -a ${{ env.TAG_NAME }} -m "my version ${{ env.VERSION }}"
+          git push origin master --tags
+      - name: setup-git
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}" 
+      - name: Release main
+         uses: actions/create-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          with:
+            tag_name: ${{ github.ref }}
+            release_name: Release ${{ github.ref }}
+            draft: false
+            prerelease: false
