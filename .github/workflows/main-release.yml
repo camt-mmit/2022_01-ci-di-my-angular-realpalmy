@@ -27,11 +27,11 @@ jobs:
           git config --global user.email "${{ github.event.pusher.email }}"
           git config --global user.name "${{ github.actor }}" 
       - name: Release main
-         uses: actions/create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          with:
-            tag_name: ${{ github.ref }}
-            release_name: Release ${{ github.ref }}
-            draft: false
-            prerelease: false
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
