@@ -8,7 +8,7 @@ jobs:
   ci-feature: 
     runs-on: ubuntu-latest
     env: 
-      BRANCH_NAME: ${{ github.ref }}
+      REF_NAME: ${{ github.ref }}
     steps: 
       - uses: actions/checkout@v3
         with:
