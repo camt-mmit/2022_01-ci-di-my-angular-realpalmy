@@ -2,7 +2,7 @@ name: feature-01 CI
 run-name: ${{ github.actor }} is feature
 on:
   push: 
-    branchs: 
+    branches: 
       - feature-01
 jobs: 
   ci-feature-01: 
