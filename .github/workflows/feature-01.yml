@@ -26,3 +26,4 @@ jobs:
         run: npx ng build --configuration production --base-href="/${{ github.event.repository.name }}/"
       - name: Test Project
         run: yarn run test:ci
+        
