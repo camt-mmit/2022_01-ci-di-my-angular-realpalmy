@@ -1,37 +1,32 @@
-name: feature release
+name: main release
 run-name: ${{ github.actor }} is releasing main
 on:
-  push: 
-    tags: 
+  push:
+    tags:
       - v*.*.*
-jobs: 
-  ci-feature: 
+jobs:
+  ci-main:
     runs-on: ubuntu-latest
-    env: 
-      TAG_NAME: ${{ github.ref }}
-    steps: 
+    env:
+      REF_NAME: ${{ github.ref }}
+    steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.RELEASE_TOKEN }}  
+          token: ${{ secrets.RELEASE_TOKEN }}
       - uses: actions/setup-node@v3
         with:
-          node-version: "16" 
-      - name: Setupe enviroment variables
+          node-version: "16"
+      - name: Setup git user
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}"
+      - name: Setup environment variables
         run: |
           VERSION="${REF_NAME#refs/heads/v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "BRANCH_NAME=b${VERSION}" >> $GITHUB_ENV
           echo "TAG_NAME=v${VERSION}" >> $GITHUB_ENV
-      - name: setup-git
-        run: |
-          git config --global user.email "${{ github.event.pusher.email }}"
-          git config --global user.name "${{ github.actor }}" 
       - name: Release main
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          token: ${{ secrets.RELEASE_TOKEN }}

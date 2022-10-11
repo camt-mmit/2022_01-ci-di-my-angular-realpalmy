@@ -1,0 +1,47 @@
+name: deploy release
+run-name: ${{ github.actor }} is deploying release
+on:
+  release:
+    types: [published]
+jobs:
+  push-to-gh-pages:
+    if: ${{ !contains(github.event.release.tag_name, 'alpha') && !contains(github.event.release.tag_name, 'beta') }}
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Setup environment variables
+        run: |
+          echo "VERSION=${RELEASE_TAG#v}" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+      - name: Setup git user
+        run: |
+          git config --global user.email "${{ github.event.pusher.email }}"
+          git config --global user.name "${{ github.actor }}"
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build project
+        run: npx ng build --configuration=production --base-href=/${{ github.event.repository.name }}/
+      - name: Create push directory
+        run: |
+          mkdir -p ./dist/gh-pages
+          git init -b gh-pages ./dist/gh-pages
+          cd ./dist/gh-pages
+          git remote add -t gh-pages origin \
+          https://git:${{ github.token }}@github.com/${{ github.repository }}.git
+          git fetch -u origin gh-pages:gh-pages || exit 0
+          cp -rf ../my-angular/* ./
+          cp ./index.html ./404.html
+          cd ..
+      - name: Push to gh-pages
+        run: |
+          cd ./dist/gh-pages
+          git add .
+          git commit -m "${{ github.actor }} publis version ${{ env.VERSION }}"
+          git push origin gh-pages

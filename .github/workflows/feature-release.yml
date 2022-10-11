@@ -1,44 +1,44 @@
 name: feature release
 run-name: ${{ github.actor }} is releasing feature
 on:
-  push: 
-    branches: 
+  push:
+    branches:
       - b*.*.*
-jobs: 
-  ci-feature: 
+jobs:
+  ci-feature:
     runs-on: ubuntu-latest
-    env: 
+    env:
       REF_NAME: ${{ github.ref }}
-    steps: 
+    steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PUSH_MAIN }}  
+          token: ${{ secrets.PUSH_MAIN }}
       - uses: actions/setup-node@v3
         with:
-          node-version: "16" 
-      - name: Setupe enviroment variables
+          node-version: "16"
+      - name: Setup environment variables
         run: |
           VERSION="${REF_NAME#refs/heads/b}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "BRANCH_NAME=b${VERSION}" >> $GITHUB_ENV
           echo "TAG_NAME=v${VERSION}" >> $GITHUB_ENV
-      - name: setup-git
+      - name: Setup git user
         run: |
           git config --global user.email "${{ github.event.pusher.email }}"
-          git config --global user.name "${{ github.actor }}" 
+          git config --global user.name "${{ github.actor }}"
       - name: Install yarn
-        run: npm install -g yarn 
-      - name: Install deprndencies
-        run: yarn install --frozrn-lockfile
-      - name: Build project
-        run: npx ng build --configuration production --base-href="/${{ github.event.repository.name }}/"
-      - name: Test Project
+        run: npm install -g yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Lint project
+        run: yarn run lint
+      - name: Test project
         run: yarn run test:ci
       - name: Merge to main
         run: |
           git fetch --unshallow
           git checkout main
           git merge ${{ env.BRANCH_NAME }}
-          git push origin master
-          git tag -a ${{ env.BRANCH_NAME }} -m "my version ${{ env.BRANCH_NAME }}"
+          git push --delete origin ${{ env.BRANCH_NAME }}
+          git tag -a ${{ env.TAG_NAME }} -m "my version ${{ env.VERSION }}"
           git push origin main --tags
