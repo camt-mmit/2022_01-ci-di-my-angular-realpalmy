@@ -30,14 +30,14 @@ jobs:
         run: npm install -g yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Lint project
-        run: yarn run lint
+      # - name: Lint project
+      #   run: yarn run lint
       - name: Test project
         run: yarn run test:ci
       - name: Merge to main
         run: |
           git fetch --unshallow
-          git checkout main
+          git checkout master
           git merge ${{ env.BRANCH_NAME }}
           git push --delete origin ${{ env.BRANCH_NAME }}
           git tag -a ${{ env.TAG_NAME }} -m "my version ${{ env.VERSION }}"
