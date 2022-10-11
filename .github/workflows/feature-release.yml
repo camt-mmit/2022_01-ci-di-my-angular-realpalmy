@@ -39,6 +39,6 @@ jobs:
           git fetch --unshallow
           git checkout master
           git merge ${{ env.BRANCH_NAME }}
-          git push origin main
+          git push origin master
           git tag -a ${{ env.BRANCH_NAME }} -m "my version ${{ env.BRANCH_NAME }}"
           git push origin master --tags
